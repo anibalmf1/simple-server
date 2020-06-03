@@ -1,5 +1,6 @@
 package br.com.anibal.armory.simpleserver.controllers;
 
+import br.com.anibal.armory.simpleserver.controllers.hateoas.HateoasCursosController;
 import br.com.anibal.armory.simpleserver.controllers.hateoas.assemblers.CursoModelAssembler;
 import br.com.anibal.armory.simpleserver.entities.Curso;
 import br.com.anibal.armory.simpleserver.services.CursoService;
@@ -22,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
-@WebMvcTest(CursosController.class)
+@WebMvcTest(HateoasCursosController.class)
 @Import({CursoModelAssembler.class, CursoService.class})
 class HateoasCursosControllerTest {
 
@@ -30,19 +31,19 @@ class HateoasCursosControllerTest {
     private MockMvc mvc;
 
     @MockBean
-    private CursoRepository repository;
+    private CursoService service;
 
     @Test
     void shouldFetchCursos() throws Exception {
-        given(repository.findAll()).willReturn(
+        given(service.getCursos()).willReturn(
                 Arrays.asList(
-                        new Curso(1, "Java"),
-                        new Curso(2, "Spring")));
+                        new Curso("1", "Java"),
+                        new Curso("2", "Spring")));
 
-        mvc.perform(get(CursosController.REQUEST_MAPPING))
+        mvc.perform(get(HateoasCursosController.REQUEST_MAPPING))
             .andDo(print())
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$._embedded.cursos[0].id", is(1)))
+            .andExpect(jsonPath("$._embedded.cursos[0].nome", is("Java")))
             .andReturn();
     }
 
